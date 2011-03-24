@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Name: wsdp2k.py
+# Name: neopi.py
 # Description: Utility to scan a file path for encrypted and obfuscated files
 # Authors: Ben Hagen (ben.hagen@neohapsis.com)
 #          Scott Behrens (scott.behrens@neohapsis.com)
