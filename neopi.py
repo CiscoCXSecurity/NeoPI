@@ -265,7 +265,7 @@ if __name__ == "__main__":
 	tests = []	
 
 	if options.is_auto:
-		valid_regex = re.compile('\.php|\.asp|\.aspx|\.sh|\.bash|\.zsh|\.csh|\.tsch|\.pl|\.py|\.txt|\.cgi|\.cfm')
+		valid_regex = re.compile('(\.php|\.asp|\.aspx|\.sh|\.bash|\.zsh|\.csh|\.tsch|\.pl|\.py|\.txt|\.cgi|\.cfm)$')
 
 	if options.is_all:
 		tests.append(LanguageIC())
@@ -302,10 +302,10 @@ if __name__ == "__main__":
 				csv_row.append(calculated_value)
 			csv_array.append(csv_row)
 
-			if options.is_csv:
-				csv_array.insert(0,csv_header)
-				fileOutput = csv.writer(open(options.is_csv, "wb"))
-				fileOutput.writerows(csv_array)
+	if options.is_csv:
+		csv_array.insert(0,csv_header)
+		fileOutput = csv.writer(open(options.is_csv, "wb"))
+		fileOutput.writerows(csv_array)
 
 	top_ten = []
 	# For each test print the top ten results for that test.  
