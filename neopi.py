@@ -255,11 +255,14 @@ if __name__ == "__main__":
 
 	# Error on an invalid path
 	if os.path.exists(args[0]) == False:
-		parser.error("invalid path")
+		parser.error("Invalid path")
 
 	valid_regex = ""
 	if (len(args) == 2 and options.is_auto is False):
-		valid_regex = re.compile(args[1])
+		try:
+			valid_regex = re.compile(args[1])
+		except:
+			parser.error("Invalid regular expression")
 	else:
 		valid_regex = re.compile('.*')
 	tests = []	
