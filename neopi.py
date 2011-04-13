@@ -15,7 +15,6 @@ import math
 import sys
 import os
 import re
-import zlib
 import csv
 from collections import defaultdict
 from optparse import OptionParser
@@ -28,10 +27,10 @@ class LanguageIC:
 		"""Initialize results arrays as well as character counters."""
 		self.char_count =  defaultdict(int)
 		self.total_char_count = 0
-		self.ic_results = []
+		self.results = []
 		self.ic_total_results = ""
 
-	def caculate_char_count(self,data):
+	def calculate_char_count(self,data):
 		"""Method to calculate character counts for a particular data file."""
 		if not data:
 			return 0
@@ -44,7 +43,7 @@ class LanguageIC:
 
 		return
 
-	def caculate_IC(self):
+	def calculate_IC(self):
 		"""Calculate the Index of Coincidence for the self variables"""
 		total = 0
 		for val in self.char_count.values():
@@ -60,7 +59,7 @@ class LanguageIC:
 		self.ic_total_results = ic_total
 		return
 
-	def caculate(self,data,filename):
+	def calculate(self,data,filename):
 		"""Calculate the Index of Coincidence for a file and append to self.ic_results array"""
 		if not data:
 			return 0
@@ -74,40 +73,34 @@ class LanguageIC:
 			total_char_count += charcount
 
 		ic = float(char_count)/(total_char_count * (total_char_count - 1))
-		self.ic_results.append({"filename":filename, "IC":ic})
-		# Call method to caculate_char_count and append to total_char_count
-		self.caculate_char_count(data)
+		self.results.append({"filename":filename, "value":ic})
+		# Call method to calculate_char_count and append to total_char_count
+		self.calculate_char_count(data)
 		return ic
 
-	def printer(self):
-		"""Print the average IC for searchpath and the top 10 lowest Index of Coincidence files."""
+	def sort(self):
+		self.results.sort(key=lambda item: item["value"])
+		self.results = resultsAddRank(self.results)
+
+	def printer(self, count):
+		"""Print the top signature count match files for a given search"""
 		# Calculate the Total IC for a Search
-		self.caculate_IC()
-		self.ic_results.sort(key=lambda item: item["IC"])
-		# Rank based on absolute difference from avg
-		# self.ic_results.sort(key=lambda item: abs(item["IC"]-self.ic_total_results))
-		# self.ic_results.reverse()
-		top_ten = self.ic_results[0:10]
-		ic_list = []
+		self.calculate_IC()
 		print "\n[[ Average IC for Search ]]"
 		print self.ic_total_results
-		print "\n[[ Top 10 IC files ]]"
-		x = 9
-		for file in top_ten:
-			print ' {0:>7.4f}	  {1}'.format(file["IC"], file["filename"])
-			results = file["filename"], x
-			ic_list.append(results)
-			x = x - 1 
-		return ic_list
+		print "\n[[ Top %i lowest IC files ]]" % (count)
+		for x in range(count):
+			print ' {0:>7.4f}		{1}'.format(self.results[x]["value"], self.results[x]["filename"])
+		return
 
 class Entropy:
 	"""Class that calculates a file's Entropy."""
 
 	def __init__(self):
 		"""Instantiate the entropy_results array."""
-		self.entropy_results = []
+		self.results = []
 
-	def caculate(self,data,filename):
+	def calculate(self,data,filename):
 		"""Calculate the entropy for 'data' and append result to entropy_results array."""
 
 		if not data:
@@ -117,37 +110,31 @@ class Entropy:
 			p_x = float(data.count(chr(x)))/len(data)
 			if p_x > 0:
 				entropy += - p_x * math.log(p_x, 2)
-		self.entropy_results.append({"filename":filename, "entropy":entropy})
+		self.results.append({"filename":filename, "value":entropy})
 		return entropy
 
-	def printer(self):
-		"""Print the top 10 entropic files for a given search"""
-		self.entropy_results.sort(key=lambda item: item["entropy"])
-		top_ten = self.entropy_results[-10:]	
-		top_ten.reverse()
-		entropy_list = []
+	def sort(self):
+		self.results.sort(key=lambda item: item["value"])
+		self.results.reverse()
+		self.results = resultsAddRank(self.results)
 
-		print "\n[[ Top 10 entropic files ]]"
-		x = 9
-		for file in top_ten:
-			print ' {0:>7.4f}	  {1}'.format(file["entropy"], file["filename"])
-			results = file["filename"], x
-			entropy_list.append(results)
-			x = x - 1 
-		return entropy_list
+	def printer(self, count):
+		"""Print the top signature count match files for a given search"""
+		print "\n[[ Top %i entropic files for a given search ]]" % (count)
+		for x in range(count):
+			print ' {0:>7.4f}		{1}'.format(self.results[x]["value"], self.results[x]["filename"])
+		return
 
 class LongestWord:
 	"""Class that determines the longest word for a particular file."""
 	def __init__(self):
 		"""Instantiate the longestword_results array."""
-		self.longestword_results = []
+		self.results = []
 
-	def caculate(self,data,filename):
+	def calculate(self,data,filename):
 		"""Find the longest word in a string and append to longestword_results array"""
-
 		if not data:
 			return "", 0
-
 		longest = 0
 		longest_word = ""
 		words = re.split("[\s,\n,\r]", data)
@@ -157,58 +144,62 @@ class LongestWord:
 				if length > longest:
 					longest = length
 					longest_word = word
-		self.longestword_results.append({"filename":filename, "wordlongest":longest})
+		self.results.append({"filename":filename, "value":longest})
 		return longest
 
-	def printer(self):
-		"""Print the top 10 longest word files for a given search"""
-		self.longestword_results.sort(key=lambda item: item["wordlongest"])
-		top_ten = self.longestword_results[-10:]
-		top_ten.reverse()
-		longestword_list = []
+	def sort(self):
+		self.results.sort(key=lambda item: item["value"])
+		self.results.reverse()
+		self.results = resultsAddRank(self.results)
 
-		print "\n[[ Top 10 longest word files ]]"
-		x = 9
-		for file in top_ten:
-			print ' {0:>7}		{1}'.format(file["wordlongest"], file["filename"])
-			results = file["filename"], x
-			longestword_list.append(results)
-			x = x - 1 
-		return longestword_list
+	def printer(self, count):
+		"""Print the top signature count match files for a given search"""
+		print "\n[[ Top %i longest word files ]]" % (count)
+		for x in range(count):
+			print ' {0:>7}		{1}'.format(self.results[x]["value"], self.results[x]["filename"])
+		return
 
 class SignatureNasty:
 	"""Generator that searches a given file for nasty expressions"""		
 
 	def __init__(self):
 		"""Instantiate the longestword_results array."""
-		self.signature_results = []
+		self.results = []
 
-	def caculate(self, data, filename):
+	def calculate(self, data, filename):
 		if not data:
 			return "", 0
-
 		# Lots taken from the wonderful post at http://stackoverflow.com/questions/3115559/exploitable-php-functions
 		valid_regex = re.compile('(eval\(|base64_decode|python_eval|exec\(|passthru\(|popen\(|proc_open\(|pcntl_|assert\()')
 		matches = re.findall(valid_regex, data)
-		self.signature_results.append({"filename":filename, "signaturecount":len(matches)})
+		self.results.append({"filename":filename, "value":len(matches)})
 		return len(matches)
 
-	def printer(self):
-		"""Print the top 10 signature count match files for a given search"""
-		self.signature_results.sort(key=lambda item: item["signaturecount"])
-		top_ten = self.signature_results[-10:]
-		top_ten.reverse()
-		signature_list = []
+	def sort(self):
+		self.results.sort(key=lambda item: item["value"])
+		self.results.reverse()
+		self.results = resultsAddRank(self.results)
 
-		print "\n[[ Top 10 signature match counts ]]"
-		x = 9
-		for file in top_ten:
-			print ' {0:>7}		{1}'.format(file["signaturecount"], file["filename"])
-			results = file["filename"], x
-			signature_list.append(results)
-			x = x - 1 
-		return signature_list
+	def printer(self, count):
+		"""Print the top signature count match files for a given search"""
+		print "\n[[ Top %i signature match counts ]]" % (count)
+		for x in range(count):
+			print ' {0:>7}		{1}'.format(self.results[x]["value"], self.results[x]["filename"])
+		return
 
+def resultsAddRank(results):
+	rank = 1
+	offset = 1
+	previousValue = False
+	newList = []
+	for file in results:
+		if (previousValue and previousValue != file["value"]):
+			rank = offset
+		file["rank"] = rank
+		newList.append(file)
+		previousValue = file["value"]
+		offset = offset + 1
+	return newList
 
 class SearchFile:
 	"""Generator that searches a given filepath with an optional regular
@@ -224,26 +215,6 @@ class SearchFile:
 						data = False
 						print "Could not read file :: %s/%s" % (root, file)
 					yield data, filename 
-
-class PrintRank:
-	"""bob"""
-	def print_rank(self, top_ten):	  
-
-		files = defaultdict(int)
-		for list in top_ten:
-			for file, rank in list:
-				files[str(file)] += int(rank)
-
-		sorted_top_ten =  sorted(files.items(), key=lambda k: k[1], reverse=True)
-		top_ten = sorted_top_ten[0:10]
-		print "\n[[ Highest Rank Files Based on test results ]]"
-		# print ' {0:>7}	{1}'.format("Rank", "Filename")
-
-		for file in top_ten:
-			#print file[0], "%" + 
-			print ' {0:>7}		{1}'.format(str(int((float(file[1])/30) * 100)) + "%", file[0])
-
-		return
 
 if __name__ == "__main__":
 	"""Parse all the options"""
@@ -290,7 +261,7 @@ if __name__ == "__main__":
 
 	# Error on invalid number of arguements
 	if len(args) < 1:
-		parser.error("wrong number of arguments")  
+		parser.error("Wrong number of arguments")  
 
 	# Error on an invalid path
 	if os.path.exists(args[0]) == False:
@@ -317,16 +288,12 @@ if __name__ == "__main__":
 	else:
 		if options.is_entropy:
 			tests.append(Entropy())
-
 		if options.is_longest:
 			tests.append(LongestWord())
-
 		if options.is_ic:
 			tests.append(LanguageIC())
-
 		if options.is_signature:
 			tests.append(SignatureNasty())
-
 
 	# Instantiate the Generator Class used for searching, opening, and reading files		
 	locator = SearchFile()
@@ -336,13 +303,13 @@ if __name__ == "__main__":
 	csv_header = ["filename"]
 
 	# Grab the file and calculate each test against file
-	for data,filename in locator.search_file_path(args, valid_regex):		  
+	for data, filename in locator.search_file_path(args, valid_regex):		  
 		if data:
 			# a row array for the CSV
 			csv_row = []
 			csv_row.append(filename)
 			for test in tests:
-				calculated_value = test.caculate(data,filename)
+				calculated_value = test.calculate(data, filename)
 				# Make the header row if it hasn't been fully populated, +1 here to account for filename column
 				if len(csv_header) < len(tests) + 1:
 					csv_header.append(test.__class__.__name__)
@@ -354,11 +321,17 @@ if __name__ == "__main__":
 		fileOutput = csv.writer(open(options.is_csv, "wb"))
 		fileOutput.writerows(csv_array)
 
-	top_ten = []
-	# For each test print the top ten results for that test.  
+	# Print top rank lists
+	rank_list = {}
 	for test in tests:
-		top_ten.append(test.printer())
+		test.sort()
+		test.printer(10)
+		for file in test.results:
+			rank_list[file["filename"]] = rank_list.setdefault(file["filename"], 0) + file["rank"]
 	
-	printer = PrintRank()
+	rank_sorted = sorted(rank_list.items(), key=lambda x: x[1])
 
-	printer.print_rank(top_ten)
+	print "\n[[ Top cumulative ranked files ]]"
+	for x in range(10):
+		print ' {0:>7}		{1}'.format(rank_sorted[x][1], rank_sorted[x][0])
+
