@@ -292,7 +292,9 @@ if __name__ == "__main__":
 
 	# Error on invalid number of arguements
 	if len(args) < 1:
-		parser.error("Wrong number of arguments")  
+		parser.print_help()
+		print ""
+		sys.exit()
 
 	# Error on an invalid path
 	if os.path.exists(args[0]) == False:
