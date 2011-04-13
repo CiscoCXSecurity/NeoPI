@@ -117,3 +117,7 @@ The tool is cross compatible with windows as well.    In the example below we us
 
 	python neopi.py -a c:\temp\phpbb "php|txt"
 
+##Animal Shell
+animal_shell_encoder.php and animal_shell_poc.php are two Proof-of-Concept-type examples scripts to implement an encoding that "should" evade many of the statistical tests NeoPI performs. They are poorly commented and the decoder large such that they are impractical.
+
+
