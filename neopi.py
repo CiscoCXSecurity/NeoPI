@@ -220,7 +220,7 @@ if __name__ == "__main__":
 	"""Parse all the options"""
 	parser = OptionParser(usage="usage: %prog [options] <start directory> <OPTIONAL: filename regex>",
 						  version="%prog 1.0")
-	parser.add_option("-C", "--csv",
+	parser.add_option("-c", "--csv",
 					  action="store",
 					  dest="is_csv",
 					  default=False,
@@ -230,7 +230,7 @@ if __name__ == "__main__":
 					  action="store_true",
 					  dest="is_all",
 					  default=False,
-					  help="Run all tests [Entropy, Longest Word, Compression]",)
+					  help="Run all tests [Entropy, Longest Word, IC, Signature]",)
 	parser.add_option("-e", "--entropy",
 					  action="store_true",
 					  dest="is_entropy",
@@ -241,7 +241,7 @@ if __name__ == "__main__":
 					  dest="is_longest",
 					  default=False,
 					  help="Run longest word test",)
-	parser.add_option("-c", "--ic",
+	parser.add_option("-i", "--ic",
 					  action="store_true",
 					  dest="is_ic",
 					  default=False,
