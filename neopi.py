@@ -2,10 +2,9 @@
 # Name: neopi.py
 # Description: Utility to scan a file path for encrypted and obfuscated files
 # Authors: Ben Hagen (ben.hagen@neohapsis.com)
-#		   Scott Behrens (scott.behrens@neohapsis.com)
+#		Scott Behrens (scott.behrens@neohapsis.com)
 #
 # Date: 11/4/2010
-# Copyright: Neohapsis Open Source blah Blah
 #
 
 # Try catch regular expressions/bad path/bad filename/bad regex/
