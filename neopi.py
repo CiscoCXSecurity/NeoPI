@@ -16,6 +16,7 @@ import sys
 import os
 import re
 import csv
+import zlib
 from collections import defaultdict
 from optparse import OptionParser
 
@@ -34,13 +35,11 @@ class LanguageIC:
 		"""Method to calculate character counts for a particular data file."""
 		if not data:
 			return 0
-
 		for x in range(256):
 			char = chr(x)
 			charcount = data.count(char)
 			self.char_count[char] += charcount
 			self.total_char_count += charcount
-
 		return
 
 	def calculate_IC(self):
@@ -170,7 +169,7 @@ class SignatureNasty:
 		if not data:
 			return "", 0
 		# Lots taken from the wonderful post at http://stackoverflow.com/questions/3115559/exploitable-php-functions
-		valid_regex = re.compile('(eval\(|base64_decode|python_eval|exec\(|passthru\(|popen\(|proc_open\(|pcntl_|assert\()')
+		valid_regex = re.compile('(eval\(|base64_decode|python_eval|exec\(|passthru|popen|proc_open|pcntl|assert\(|system\(|shell)', re.I)
 		matches = re.findall(valid_regex, data)
 		self.results.append({"filename":filename, "value":len(matches)})
 		return len(matches)
@@ -185,6 +184,33 @@ class SignatureNasty:
 		print "\n[[ Top %i signature match counts ]]" % (count)
 		for x in range(count):
 			print ' {0:>7}		{1}'.format(self.results[x]["value"], self.results[x]["filename"])
+		return
+
+class Compression:
+	"""Generator finds compression ratio"""		
+
+	def __init__(self):
+		"""Instantiate the results array."""
+		self.results = []
+
+	def calculate(self, data, filename):
+		if not data:
+			return "", 0
+		compressed = zlib.compress(data)
+		ratio = float(len(compressed)) / float(len(data))
+		self.results.append({"filename":filename, "value":ratio})
+		return ratio
+
+	def sort(self):
+		self.results.sort(key=lambda item: item["value"])
+		self.results.reverse()
+		self.results = resultsAddRank(self.results)
+
+	def printer(self, count):
+		"""Print the top files for a given search"""
+		print "\n[[ Top %i compression match counts ]]" % (count)
+		for x in range(count):
+			print ' {0:>7.4f}		{1}'.format(self.results[x]["value"], self.results[x]["filename"])
 		return
 
 def resultsAddRank(results):
@@ -230,7 +256,12 @@ if __name__ == "__main__":
 					  action="store_true",
 					  dest="is_all",
 					  default=False,
-					  help="Run all tests [Entropy, Longest Word, IC, Signature]",)
+					  help="Run all (useful) tests [Entropy, Longest Word, IC, Signature]",)
+	parser.add_option("-z", "--zlib",
+					  action="store_true",
+					  dest="is_zlib",
+					  default=False,
+					  help="Run compression Test",)
 	parser.add_option("-e", "--entropy",
 					  action="store_true",
 					  dest="is_entropy",
@@ -284,7 +315,7 @@ if __name__ == "__main__":
 		tests.append(LanguageIC())
 		tests.append(Entropy())
 		tests.append(LongestWord())
-		tests.append(SignatureNasty())		  
+		tests.append(SignatureNasty())
 	else:
 		if options.is_entropy:
 			tests.append(Entropy())
@@ -294,6 +325,8 @@ if __name__ == "__main__":
 			tests.append(LanguageIC())
 		if options.is_signature:
 			tests.append(SignatureNasty())
+		if options.is_zlib:
+			tests.append(Compression())
 
 	# Instantiate the Generator Class used for searching, opening, and reading files		
 	locator = SearchFile()
