@@ -88,6 +88,7 @@ class LanguageIC:
 		print "\n[[ Average IC for Search ]]"
 		print self.ic_total_results
 		print "\n[[ Top %i lowest IC files ]]" % (count)
+		if (count > len(self.results)): count = len(self.results)
 		for x in range(count):
 			print ' {0:>7.4f}		{1}'.format(self.results[x]["value"], self.results[x]["filename"])
 		return
@@ -120,6 +121,7 @@ class Entropy:
 	def printer(self, count):
 		"""Print the top signature count match files for a given search"""
 		print "\n[[ Top %i entropic files for a given search ]]" % (count)
+		if (count > len(self.results)): count = len(self.results)
 		for x in range(count):
 			print ' {0:>7.4f}		{1}'.format(self.results[x]["value"], self.results[x]["filename"])
 		return
@@ -154,6 +156,7 @@ class LongestWord:
 	def printer(self, count):
 		"""Print the top signature count match files for a given search"""
 		print "\n[[ Top %i longest word files ]]" % (count)
+		if (count > len(self.results)): count = len(self.results)
 		for x in range(count):
 			print ' {0:>7}		{1}'.format(self.results[x]["value"], self.results[x]["filename"])
 		return
@@ -182,6 +185,7 @@ class SignatureNasty:
 	def printer(self, count):
 		"""Print the top signature count match files for a given search"""
 		print "\n[[ Top %i signature match counts ]]" % (count)
+		if (count > len(self.results)): count = len(self.results)
 		for x in range(count):
 			print ' {0:>7}		{1}'.format(self.results[x]["value"], self.results[x]["filename"])
 		return
@@ -209,6 +213,7 @@ class Compression:
 	def printer(self, count):
 		"""Print the top files for a given search"""
 		print "\n[[ Top %i compression match counts ]]" % (count)
+		if (count > len(self.results)): count = len(self.results)
 		for x in range(count):
 			print ' {0:>7.4f}		{1}'.format(self.results[x]["value"], self.results[x]["filename"])
 		return
@@ -367,6 +372,8 @@ if __name__ == "__main__":
 	rank_sorted = sorted(rank_list.items(), key=lambda x: x[1])
 
 	print "\n[[ Top cumulative ranked files ]]"
-	for x in range(10):
+	count = 10
+	if (count > len(rank_sorted)): count = len(rank_sorted)
+	for x in range(count):
 		print ' {0:>7}		{1}'.format(rank_sorted[x][1], rank_sorted[x][0])
 
