@@ -17,6 +17,7 @@ import os
 import re
 import csv
 import zlib
+import time
 from collections import defaultdict
 from optparse import OptionParser
 
@@ -250,6 +251,8 @@ class SearchFile:
 if __name__ == "__main__":
 	"""Parse all the options"""
 
+	timeStart = time.clock()
+
 	print """
 	    )         (   (     
 	 ( /(         )\ ))\ )  
@@ -304,6 +307,11 @@ if __name__ == "__main__":
 					  dest="is_auto",
 					  default=False,
 					  help="Run auto file extension tests",)  
+	parser.add_option("-u", "--unicode",
+					  action="store_true",
+					  dest="ignore_unicode",
+					  default=False,
+					  help="Skip over unicode-y/UTF'y files",)
 
 	(options, args) = parser.parse_args()
 
@@ -355,23 +363,45 @@ if __name__ == "__main__":
 	csv_header = ["filename"]
 
 	# Grab the file and calculate each test against file
+	fileCount = 0
+	fileIgnoreCount = 0
 	for data, filename in locator.search_file_path(args, valid_regex):		  
 		if data:
 			# a row array for the CSV
 			csv_row = []
 			csv_row.append(filename)
-			for test in tests:
-				calculated_value = test.calculate(data, filename)
-				# Make the header row if it hasn't been fully populated, +1 here to account for filename column
-				if len(csv_header) < len(tests) + 1:
-					csv_header.append(test.__class__.__name__)
-				csv_row.append(calculated_value)
-			csv_array.append(csv_row)
+
+			if options.ignore_unicode:
+				asciiHighCount = 0
+				for character in data:
+					if ord(character) > 127:
+						asciiHighCount = asciiHighCount + 1
+
+				fileAsciiHighRatio = float(asciiHighCount) / float(len(data))
+
+			if (options.ignore_unicode == False or fileAsciiHighRatio < .1):
+				for test in tests:
+					calculated_value = test.calculate(data, filename)
+					# Make the header row if it hasn't been fully populated, +1 here to account for filename column
+					if len(csv_header) < len(tests) + 1:
+						csv_header.append(test.__class__.__name__)
+						csv_row.append(calculated_value)
+					fileCount = fileCount + 1
+					csv_array.append(csv_row)
+			else:
+				fileIgnoreCount = fileIgnoreCount + 1
 
 	if options.is_csv:
 		csv_array.insert(0,csv_header)
 		fileOutput = csv.writer(open(options.is_csv, "wb"))
 		fileOutput.writerows(csv_array)
+
+	timeFinish = time.clock()
+
+	# Print some stats
+	print "\n[[ Total files scanned: %i ]]" % (fileCount)
+	print "[[ Total files ignored: %i ]]" % (fileIgnoreCount)
+	print "[[ Scan Time: %f seconds ]]" % (timeFinish - timeStart)
 
 	# Print top rank lists
 	rank_list = {}
