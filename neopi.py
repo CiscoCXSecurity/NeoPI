@@ -336,7 +336,7 @@ if __name__ == "__main__":
 	tests = []	  
 
 	if options.is_auto:
-		valid_regex = re.compile('(\.php|\.asp|\.aspx|\.scath|\.bash|\.zsh|\.csh|\.tsch|\.pl|\.py|\.txt|\.cgi|\.cfm)$')
+		valid_regex = re.compile('(\.php|\.asp|\.aspx|\.scath|\.bash|\.zsh|\.csh|\.tsch|\.pl|\.py|\.txt|\.cgi|\.cfm|\.htaccess)$')
 
 	if options.is_all:
 		tests.append(LanguageIC())
