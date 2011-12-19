@@ -6,10 +6,7 @@
 #
 # Date: 11/4/2010
 #
-# pep-0008 - Is stupid. TABS FO'EVER!  too bad, spaces are back!
-
-
-
+# pep-0008 - Is stupid. TABS FO'EVER!
 
 # Try catch regular expressions/bad path/bad filename/bad regex/
 
@@ -197,33 +194,33 @@ class SignatureNasty:
 
 
 class UsesEval:
-       """Generator that searches a given file for nasty eval with variable"""
+   """Generator that searches a given file for nasty eval with variable"""
 
-       def __init__(self):
-               """Instantiate the eval_results array."""
-               self.results = []
+   def __init__(self):
+           """Instantiate the eval_results array."""
+           self.results = []
 
-       def calculate(self, data, filename):
-               if not data:
-                       return "", 0
-               # Lots taken from the wonderful post at http://stackoverflow.com/questions/3115559/exploitable-php-functions
-               valid_regex = re.compile('(eval\(\$(\w|\d))', re.I)
-               matches = re.findall(valid_regex, data)
-               self.results.append({"filename":filename, "value":len(matches)})
-               return len(matches)
+   def calculate(self, data, filename):
+           if not data:
+                   return "", 0
+           # Lots taken from the wonderful post at http://stackoverflow.com/questions/3115559/exploitable-php-functions
+           valid_regex = re.compile('(eval\(\$(\w|\d))', re.I)
+           matches = re.findall(valid_regex, data)
+           self.results.append({"filename":filename, "value":len(matches)})
+           return len(matches)
 
-       def sort(self):
-               self.results.sort(key=lambda item: item["value"])
-               self.results.reverse()
-               self.results = resultsAddRank(self.results)
+   def sort(self):
+           self.results.sort(key=lambda item: item["value"])
+           self.results.reverse()
+           self.results = resultsAddRank(self.results)
 
-       def printer(self, count):
-               """Print the files that use eval"""
-               print "\n[[ Top %i eval match counts ]]" % (count)
-               if (count > len(self.results)): count = len(self.results)
-               for x in range(count):
-                       print ' {0:>7}          {1}'.format(self.results[x]["value"], self.results[x]["filename"])
-               return
+   def printer(self, count):
+           """Print the files that use eval"""
+           print "\n[[ Top %i eval match counts ]]" % (count)
+           if (count > len(self.results)): count = len(self.results)
+           for x in range(count):
+                   print ' {0:>7}          {1}'.format(self.results[x]["value"], self.results[x]["filename"])
+           return
 
 
 class Compression:
@@ -460,3 +457,4 @@ if __name__ == "__main__":
    if (count > len(rank_sorted)): count = len(rank_sorted)
    for x in range(count):
        print ' {0:>7}        {1}'.format(rank_sorted[x][1], rank_sorted[x][0])
+   
