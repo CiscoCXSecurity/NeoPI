@@ -107,6 +107,7 @@ class Entropy:
 		if not data:
 			return 0
 		entropy = 0
+		data.replace(' ', '')
 		for x in range(256):
 			p_x = float(data.count(chr(x)))/len(data)
 			if p_x > 0:
