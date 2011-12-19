@@ -313,17 +313,17 @@ if __name__ == "__main__":
                                          action="store_true",
                                          dest="is_zlib",
                                          default=False,
-                                         help="Run compression Test",)
+                                         help="Run compression test",)
        parser.add_option("-e", "--entropy",
                                          action="store_true",
                                          dest="is_entropy",
                                          default=False,
-                                         help="Run entropy Test",)
+                                         help="Run entropy test",)
        parser.add_option("-E", "--eval",
                                          action="store_true",
                                          dest="is_eval",
                                          default=False,
-                                         help="Run signiture test for the eval",)
+                                         help="Run signiture test for eval function and variable",)
        parser.add_option("-l", "--longestword",
                                          action="store_true",
                                          dest="is_longest",
