@@ -202,8 +202,8 @@ class UsesEval:
 
    def calculate(self, data, filename):
       if not data:
-               return "", 0
-           # Lots taken from the wonderful post at http://stackoverflow.com/questions/3115559/exploitable-php-functions
+         return "", 0
+      # Lots taken from the wonderful post at http://stackoverflow.com/questions/3115559/exploitable-php-functions
       valid_regex = re.compile('(eval\(\$(\w|\d))', re.I)
       matches = re.findall(valid_regex, data)
       self.results.append({"filename":filename, "value":len(matches)})
@@ -218,8 +218,8 @@ class UsesEval:
       """Print the files that use eval"""
       print "\n[[ Top %i eval match counts ]]" % (count)
       if (count > len(self.results)): count = len(self.results)
-         for x in range(count):
-            print ' {0:>7}          {1}'.format(self.results[x]["value"], self.results[x]["filename"])
+      for x in range(count):
+         print ' {0:>7}          {1}'.format(self.results[x]["value"], self.results[x]["filename"])
       return
 
 
