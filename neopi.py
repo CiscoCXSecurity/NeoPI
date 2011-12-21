@@ -192,6 +192,33 @@ class SignatureNasty:
            print ' {0:>7}        {1}'.format(self.results[x]["value"], self.results[x]["filename"])
        return
 
+class SignatureSuperNasty:
+   """Generator that searches a given file for SUPER-nasty expressions (These are almost always bad!)"""
+
+   def __init__(self):
+       """Instantiate the results array."""
+       self.results = []
+
+   def calculate(self, data, filename):
+       if not data:
+           return "", 0
+       valid_regex = re.compile('(@\$_\[\]=|\$_=@\$_GET|\$_\[\+""\]=)', re.I)
+       matches = re.findall(valid_regex, data)
+       self.results.append({"filename":filename, "value":len(matches)})
+       return len(matches)
+
+   def sort(self):
+       self.results.sort(key=lambda item: item["value"])
+       self.results.reverse()
+       self.results = resultsAddRank(self.results)
+
+   def printer(self, count):
+       """Print the top signature count match files for a given search"""
+       print "\n[[ Top %i SUPER-signature match counts (These are usually bad!) ]]" % (count)
+       if (count > len(self.results)): count = len(self.results)
+       for x in range(count):
+           print ' {0:>7}        {1}'.format(self.results[x]["value"], self.results[x]["filename"])
+       return
 
 class UsesEval:
    """Generator that searches a given file for nasty eval with variable"""
@@ -339,6 +366,11 @@ if __name__ == "__main__":
                      dest="is_signature",
                      default=False,
                      help="Run signature test",)
+   parser.add_option("-S", "--supersignature",
+                     action="store_true",
+                     dest="is_supersignature",
+                     default=False,
+                     help="Run SUPER-signature test",)
    parser.add_option("-A", "--auto",
                      action="store_true",
                      dest="is_auto",
@@ -380,6 +412,7 @@ if __name__ == "__main__":
        tests.append(Entropy())
        tests.append(LongestWord())
        tests.append(SignatureNasty())
+       tests.append(SignatureSuperNasty())
    else:
        if options.is_entropy:
            tests.append(Entropy())
@@ -389,6 +422,8 @@ if __name__ == "__main__":
            tests.append(LanguageIC())
        if options.is_signature:
            tests.append(SignatureNasty())
+       if options.is_supersignature:
+           tests.append(SignatureSuperNasty())
        if options.is_eval:
            tests.append(UsesEval())
        if options.is_zlib:
