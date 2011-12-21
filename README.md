@@ -1,7 +1,7 @@
 #What is NeoPI?
 NeoPI is a Python script that uses a variety of statistical methods to detect obfuscated and encrypted content within text/script files. The intended purpose of NeoPI is to aid in the detection of hidden web shell code. The development focus of NeoPI was creating a tool that could be used in conjunction with other established detection methods such as Linux Malware Detect or traditional signature/keyword based searches.
 
-NeoPI recursively scans through the file system, from a base directory, and will rank files based on the results of  a number of tests. It also presents a “general” score derived from file rankings within the individual tests.
+NeoPI recursively scans through the file system from a base directory and will rank files based on the results of  a number of tests. It also presents a “general” score derived from file rankings within the individual tests.
 
 #Requirements
 NeoPI is platform independent and can be run on any system with Python 2.6 or greater installed installed. The user running the script should have read access to all of the files that will be scanned.
