@@ -218,8 +218,8 @@ class UsesEval:
       """Print the files that use eval"""
       print "\n[[ Top %i eval match counts ]]" % (count)
       if (count > len(self.results)): count = len(self.results)
-         for x in range(count):
-            print ' {0:>7}          {1}'.format(self.results[x]["value"], self.results[x]["filename"])
+      for x in range(count):
+        print ' {0:>7}          {1}'.format(self.results[x]["value"], self.results[x]["filename"])
       return
 
 
