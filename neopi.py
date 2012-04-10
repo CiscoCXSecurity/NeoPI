@@ -20,7 +20,14 @@ import zlib
 import time
 from collections import defaultdict
 from optparse import OptionParser
+
+#
+# Globals
+#
    
+# Smallest filesize to checkfor in bytes.  
+SMALLEST = 60
+
 class LanguageIC:
    """Class that calculates a file's Index of Coincidence as
    as well as a a subset of files average Index of Coincidence.
@@ -299,7 +306,7 @@ class SearchFile:
        for root, dirs, files in os.walk(args[0]):
            for file in files:
                filename = os.path.join(root, file)
-               if (valid_regex.search(file) and os.path.getsize(filename) > 60):
+               if (valid_regex.search(file) and os.path.getsize(filename) > SMALLEST):
                    try:
                        data = open(root + "/" + file, 'rb').read()
                    except:
