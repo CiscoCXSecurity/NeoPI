@@ -470,9 +470,7 @@ if __name__ == "__main__":
                    csv_row.append(calculated_value)
                    fileCount = fileCount + 1
                csv_array.append(csv_row)
-               print csv_row
            else:
-               print 2
                fileIgnoreCount = fileIgnoreCount + 1
 
    if options.is_csv:
