@@ -461,7 +461,6 @@ if __name__ == "__main__":
                fileAsciiHighRatio = float(asciiHighCount) / float(len(data))
 
            if (options.ignore_unicode == False or fileAsciiHighRatio < .1):
-               print 1
                for test in tests:
                    calculated_value = test.calculate(data, filename)
                    # Make the header row if it hasn't been fully populated, +1 here to account for filename column
