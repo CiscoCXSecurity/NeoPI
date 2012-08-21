@@ -461,15 +461,18 @@ if __name__ == "__main__":
                fileAsciiHighRatio = float(asciiHighCount) / float(len(data))
 
            if (options.ignore_unicode == False or fileAsciiHighRatio < .1):
+               print 1
                for test in tests:
                    calculated_value = test.calculate(data, filename)
                    # Make the header row if it hasn't been fully populated, +1 here to account for filename column
                    if len(csv_header) < len(tests) + 1:
                        csv_header.append(test.__class__.__name__)
-                       csv_row.append(calculated_value)
+                   csv_row.append(calculated_value)
                    fileCount = fileCount + 1
-                   csv_array.append(csv_row)
+               csv_array.append(csv_row)
+               print csv_row
            else:
+               print 2
                fileIgnoreCount = fileIgnoreCount + 1
 
    if options.is_csv:
