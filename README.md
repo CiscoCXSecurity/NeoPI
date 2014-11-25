@@ -21,17 +21,21 @@ Let’s run neopi.py with the -h flag to see the options.
 	Options:
 	  --version             show program's version number and exit
 	  -h, --help            show this help message and exit
-	  -C FILECSV, --csv=FILECSV
+	  -c FILECSV, --csv=FILECSV
 							generate CSV outfile
 	  -a, --all             Run all tests [Entropy, Longest Word, Compression
 	  -e, --entropy         Run entropy Test
+	  -E, --eval            Run signiture test for the eval
 	  -l, --longestword     Run longest word test
-	  -c, --ic              Run IC test
+	  -i, --ic              Run IC test
+	  -s, --signature       Run signature test
+	  -S, --supersignature  Run SUPER-signature test
 	  -A, --auto            Run auto file extension tests
+	  -u, --unicode         Skip over unicode-y/UTF'y files
 
 Let’s break down the options into greater detail.
 
-	-C FILECSV, --csv=FILECSV
+	-c FILECSV, --csv=FILECSV
 This generates a CSV output file containing the results of the scan.  
 
 	-a, --all
@@ -43,7 +47,7 @@ This flag can be set to run only the entropy test.
 	-l, --longestword
 This flag can be set to run only the longest word test.  
 
-	-c, --ic
+	-i, --ic
 This flag can be set to run only the Index of Coincidence test.  
 
 	-A, --auto 
@@ -53,7 +57,7 @@ This flag runs an auto generated regular expression that contains many common we
 
 Now that we are familiar with the flags and we have downloaded a copy of the script from GIT, let’s go head and run it on a web server we think may be infected with obfuscated web shells.    
 
-	[sbehrens@WebServer2 opt]$ sudo ./neopi.py -C scan1.csv -a -A /var/www/
+	[sbehrens@WebServer2 opt]$ sudo ./neopi.py -c scan1.csv -a -A /var/www/
 	
 The resulst of the scan we be displayed to console as well as written to 'scan1.csv'.  Here is an example of the scan results:
 
