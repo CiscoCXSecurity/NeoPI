@@ -391,7 +391,7 @@ if __name__ == "__main__":
 
    (options, args) = parser.parse_args()
 
-   # Error on invalid number of arguements
+   # Error on invalid number of arguments
    if len(args) < 1:
        parser.print_help()
        print ""
