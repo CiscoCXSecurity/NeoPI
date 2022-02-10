@@ -9,7 +9,7 @@ NeoPI is platform independent and can be run on any system with Python 2.6 or gr
 # How to use it
 NeoPI is platform independent and will run on both Linux and Windows.  To start using NeoPI first checkout the code from our github repository
 
-	git clone ssh://git@github.com:Neohapsis/NeoPI.git
+	git clone https://github.com/Neohapsis/NeoPI.git
 
 The small NeoPI script is now in your local directory.  We are going to go though a few examples on Linux and then switch over to Windows.  
 
