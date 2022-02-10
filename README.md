@@ -1,12 +1,12 @@
-#What is NeoPI?
+# What is NeoPI?
 NeoPI is a Python script that uses a variety of statistical methods to detect obfuscated and encrypted content within text/script files. The intended purpose of NeoPI is to aid in the detection of hidden web shell code. The development focus of NeoPI was creating a tool that could be used in conjunction with other established detection methods such as Linux Malware Detect or traditional signature/keyword based searches.
 
 NeoPI recursively scans through the file system from a base directory and will rank files based on the results of  a number of tests. It also presents a “general” score derived from file rankings within the individual tests.
 
-#Requirements
+# Requirements
 NeoPI is platform independent and can be run on any system with Python 2.6 or greater installed installed. The user running the script should have read access to all of the files that will be scanned.
 
-#How to use it
+# How to use it
 NeoPI is platform independent and will run on both Linux and Windows.  To start using NeoPI first checkout the code from our github repository
 
 	git clone ssh://git@github.com:Neohapsis/NeoPI.git
@@ -112,12 +112,12 @@ The resulst of the scan we be displayed to console as well as written to 'scan1.
 
 We highly recommend that as a baseline, any file that is displayed in the Highest Rank Files list be investigated at a minimum.  We also recommend investigating any files that show up in any of the tests listed above, as some methods are more effective at detecting certain shells than others.  
 
-##Windows
+## Windows
 The tool is cross compatible with windows as well.    In the example below we use a regular expressing to just search for php and text files.
 
 	python neopi.py -a c:\temp\phpbb "php|txt"
 
-##Animal Shell
+## Animal Shell
 animal_shell_encoder.php and animal_shell_poc.php are two Proof-of-Concept-type examples scripts to implement an encoding that "should" evade many of the statistical tests NeoPI performs. They are poorly commented and the decoder large such that they are impractical.
 
 
