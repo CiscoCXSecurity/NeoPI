@@ -21,10 +21,6 @@ import time
 from collections import defaultdict
 from optparse import OptionParser
 
-#
-# Globals
-#
-   
 # Smallest filesize to checkfor in bytes.  
 SMALLEST = 60
 
@@ -75,11 +71,17 @@ class LanguageIC:
 
        for x in range(256):
            char = chr(x)
-           charcount = data.count(char)
+           if isinstance(data, bytes):
+               data = data.decode('utf-8' , errors='ignore') 
+               charcount = data.count(str(char))
+
            char_count += charcount * (charcount - 1)
            total_char_count += charcount
+           if total_char_count > 1:
+               ic = float(char_count) / (total_char_count * (total_char_count - 1))
+           else:
+               ic = 0  # or handle it appropriately if needed
 
-       ic = float(char_count)/(total_char_count * (total_char_count - 1))
        self.results.append({"filename":filename, "value":ic})
        # Call method to calculate_char_count and append to total_char_count
        self.calculate_char_count(data)
@@ -93,47 +95,56 @@ class LanguageIC:
        """Print the top signature count match files for a given search"""
        # Calculate the Total IC for a Search
        self.calculate_IC()
-       print "\n[[ Average IC for Search ]]"
-       print self.ic_total_results
-       print "\n[[ Top %i lowest IC files ]]" % (count)
+       print ("\n[[ Average IC for Search ]]")
+       print (self.ic_total_results)
+       print ("\n[[ Top %i lowest IC files ]]" % (count))
        if (count > len(self.results)): count = len(self.results)
        for x in range(count):
-           print ' {0:>7.4f}        {1}'.format(self.results[x]["value"], self.results[x]["filename"])
+           print (' {0:>7.4f}        {1}'.format(self.results[x]["value"], self.results[x]["filename"]))
        return
 
 class Entropy:
-   """Class that calculates a file's Entropy."""
+    """Class that calculates a file's entropy."""
 
-   def __init__(self):
-       """Instantiate the entropy_results array."""
-       self.results = []
+    def __init__(self):
+        """Instantiate the entropy_results array."""
+        self.results = []
 
-   def calculate(self,data,filename):
-       """Calculate the entropy for 'data' and append result to entropy_results array."""
+    def calculate(self, data, filename):
+        """Calculate the entropy for 'data' and append result to entropy_results array."""
 
-       if not data:
-           return 0
-       entropy = 0
-       self.stripped_data =data.replace(' ', '')
-       for x in range(256):
-           p_x = float(self.stripped_data.count(chr(x)))/len(self.stripped_data)
-           if p_x > 0:
-               entropy += - p_x * math.log(p_x, 2)
-       self.results.append({"filename":filename, "value":entropy})
-       return entropy
+        if not data:
+            return 0
 
-   def sort(self):
-       self.results.sort(key=lambda item: item["value"])
-       self.results.reverse()
-       self.results = resultsAddRank(self.results)
+        entropy = 0
 
-   def printer(self, count):
-       """Print the top signature count match files for a given search"""
-       print "\n[[ Top %i entropic files for a given search ]]" % (count)
-       if (count > len(self.results)): count = len(self.results)
-       for x in range(count):
-           print ' {0:>7.4f}        {1}'.format(self.results[x]["value"], self.results[x]["filename"])
-       return
+        # Decode bytes to string if necessary
+        if isinstance(data, bytes):
+            data = data.decode('utf-8', errors='ignore')
+        
+        self.stripped_data = data.replace(' ', '')
+
+        for x in range(256):
+            p_x = float(self.stripped_data.count(chr(x))) / len(self.stripped_data)
+            if p_x > 0:
+                entropy += -p_x * math.log(p_x, 2)
+        
+        self.results.append({"filename": filename, "value": entropy})
+        return entropy
+
+
+    def sort(self):
+        self.results.sort(key=lambda item: item["value"])
+        self.results.reverse()
+        self.results = resultsAddRank(self.results)
+
+    def printer(self, count):
+        """Print the top signature count match files for a given search"""
+        print ("\n[[ Top %i entropic files for a given search ]]" % (count))
+        if (count > len(self.results)): count = len(self.results)
+        for x in range(count):
+            print (' {0:>7.4f}        {1}'.format(self.results[x]["value"], self.results[x]["filename"]))
+        return
 
 class LongestWord:
    """Class that determines the longest word for a particular file."""
@@ -147,7 +158,8 @@ class LongestWord:
            return "", 0
        longest = 0
        longest_word = ""
-       words = re.split("[\s,\n,\r]", data)
+       data_str = data.decode('utf-8' , errors='ignore')
+       words = re.split(r"[\s,\n,\r]", data_str)
        if words:
            for word in words:
                length = len(word)
@@ -164,10 +176,10 @@ class LongestWord:
 
    def printer(self, count):
        """Print the top signature count match files for a given search"""
-       print "\n[[ Top %i longest word files ]]" % (count)
+       print ("\n[[ Top %i longest word files ]]" % (count))
        if (count > len(self.results)): count = len(self.results)
        for x in range(count):
-           print ' {0:>7}        {1}'.format(self.results[x]["value"], self.results[x]["filename"])
+           print (' {0:>7}        {1}'.format(self.results[x]["value"], self.results[x]["filename"]))
        return
 
 class SignatureNasty:
@@ -181,8 +193,10 @@ class SignatureNasty:
        if not data:
            return "", 0
        # Lots taken from the wonderful post at http://stackoverflow.com/questions/3115559/exploitable-php-functions
-       valid_regex = re.compile('(eval\(|file_put_contents|base64_decode|python_eval|exec\(|passthru|popen|proc_open|pcntl|assert\(|system\(|shell)', re.I)
-       matches = re.findall(valid_regex, data)
+       valid_regex = re.compile(r'(eval\(|file_put_contents|base64_decode|python_eval|exec\(|passthru|popen|proc_open|pcntl|assert\(|system\(|shell)', re.I)
+
+       data_str = data.decode('utf-8', errors='ignore')
+       matches = re.findall(valid_regex, data_str)
        self.results.append({"filename":filename, "value":len(matches)})
        return len(matches)
 
@@ -193,10 +207,10 @@ class SignatureNasty:
 
    def printer(self, count):
        """Print the top signature count match files for a given search"""
-       print "\n[[ Top %i signature match counts ]]" % (count)
+       print ("\n[[ Top %i signature match counts ]]" % (count))
        if (count > len(self.results)): count = len(self.results)
        for x in range(count):
-           print ' {0:>7}        {1}'.format(self.results[x]["value"], self.results[x]["filename"])
+           print (' {0:>7}        {1}'.format(self.results[x]["value"], self.results[x]["filename"]))
        return
 
 class SignatureSuperNasty:
@@ -209,8 +223,9 @@ class SignatureSuperNasty:
    def calculate(self, data, filename):
        if not data:
            return "", 0
-       valid_regex = re.compile('(@\$_\[\]=|\$_=@\$_GET|\$_\[\+""\]=)', re.I)
-       matches = re.findall(valid_regex, data)
+       valid_regex = re.compile(r'(@\$_\[\]=|\$_=@\$_GET|\$_\[\+""\]=)', re.I)
+       data_str = data.decode('utf-8', errors='ignore')
+       matches = re.findall(valid_regex, data_str)
        self.results.append({"filename":filename, "value":len(matches)})
        return len(matches)
 
@@ -221,10 +236,10 @@ class SignatureSuperNasty:
 
    def printer(self, count):
        """Print the top signature count match files for a given search"""
-       print "\n[[ Top %i SUPER-signature match counts (These are usually bad!) ]]" % (count)
+       print ("\n[[ Top %i SUPER-signature match counts (These are usually bad!) ]]" % (count))
        if (count > len(self.results)): count = len(self.results)
        for x in range(count):
-           print ' {0:>7}        {1}'.format(self.results[x]["value"], self.results[x]["filename"])
+           print (' {0:>7}        {1}'.format(self.results[x]["value"], self.results[x]["filename"]))
        return
 
 class UsesEval:
@@ -238,7 +253,7 @@ class UsesEval:
       if not data:
                return "", 0
            # Lots taken from the wonderful post at http://stackoverflow.com/questions/3115559/exploitable-php-functions
-      valid_regex = re.compile('(eval\(\$(\w|\d))', re.I)
+      valid_regex = re.compile(r'(eval\(\$(\w|\d))', re.I)
       matches = re.findall(valid_regex, data)
       self.results.append({"filename":filename, "value":len(matches)})
       return len(matches)
@@ -250,10 +265,10 @@ class UsesEval:
 
    def printer(self, count):
       """Print the files that use eval"""
-      print "\n[[ Top %i eval match counts ]]" % (count)
+      print ("\n[[ Top %i eval match counts ]]" % (count))
       if (count > len(self.results)): count = len(self.results)
       for x in range(count):
-        print ' {0:>7}          {1}'.format(self.results[x]["value"], self.results[x]["filename"])
+        print (' {0:>7}          {1}'.format(self.results[x]["value"], self.results[x]["filename"]))
       return
 
 
@@ -279,10 +294,10 @@ class Compression:
 
    def printer(self, count):
        """Print the top files for a given search"""
-       print "\n[[ Top %i compression match counts ]]" % (count)
+       print ("\n[[ Top %i compression match counts ]]" % (count))
        if (count > len(self.results)): count = len(self.results)
        for x in range(count):
-           print ' {0:>7.4f}        {1}'.format(self.results[x]["value"], self.results[x]["filename"])
+           print (' {0:>7.4f}        {1}'.format(self.results[x]["value"], self.results[x]["filename"]))
        return
 
 def resultsAddRank(results):
@@ -313,24 +328,26 @@ class SearchFile:
                        data = open(root + "/" + file, 'rb').read()
                    except:
                        data = False
-                       print "Could not read file :: %s/%s" % (root, file)
+                       print ("Could not read file :: %s/%s" % (root, file))
                    yield data, filename
 
 if __name__ == "__main__":
    """Parse all the options"""
 
-   timeStart = time.clock()
+   timeStart = time.perf_counter()
 
-   print """
+   print(r"""
        )         (   (
     ( /(         )\ ))\ )
     )\())  (    (()/(()/(
    ((_)\  ))\ (  /(_))(_))
     _((_)/((_))\(_))(_))
    | \| (_)) ((_) _ \_ _|
-   | .` / -_) _ \  _/| |
-   |_|\_\___\___/_| |___| Ver. *.USEGIT
-   """
+   | . / -_) _ \  _/| |
+   |_|\_\___\___/_| |___|
+    """)
+
+         
 
    parser = OptionParser(usage="usage: %prog [options] <start directory> <OPTIONAL: filename regex>",
                          version="%prog 1.0")
@@ -396,7 +413,7 @@ if __name__ == "__main__":
    # Error on invalid number of arguments
    if len(args) < 1:
        parser.print_help()
-       print ""
+       print ("")
        sys.exit()
 
    # Error on an invalid path
@@ -414,7 +431,7 @@ if __name__ == "__main__":
    tests = []
 
    if options.is_auto:
-       valid_regex = re.compile('(\.php|\.asp|\.aspx|\.scath|\.bash|\.zsh|\.csh|\.tsch|\.pl|\.py|\.txt|\.cgi|\.cfm|\.htaccess)$')
+       valid_regex = re.compile(r'(\.php|\.asp|\.aspx|\.scath|\.bash|\.zsh|\.csh|\.tsch|\.pl|\.py|\.txt|\.cgi|\.cfm|\.htaccess)$')
 
    if options.is_all:
        tests.append(LanguageIC())
@@ -475,16 +492,18 @@ if __name__ == "__main__":
                fileIgnoreCount = fileIgnoreCount + 1
 
    if options.is_csv:
-       csv_array.insert(0,csv_header)
-       fileOutput = csv.writer(open(options.is_csv, "wb"))
-       fileOutput.writerows(csv_array)
+       csv_array.insert(0, csv_header)  # Insert the header at the beginning of the array
+       with open(options.is_csv, "w", newline='', encoding='utf-8') as fileOutput:
+           fileWriter = csv.writer(fileOutput)
+           fileWriter.writerows(csv_array)  # Write all rows to the CSV file
+   
 
-   timeFinish = time.clock()
+   timeFinish = time.perf_counter()
 
    # Print some stats
-   print "\n[[ Total files scanned: %i ]]" % (fileCount)
-   print "[[ Total files ignored: %i ]]" % (fileIgnoreCount)
-   print "[[ Scan Time: %f seconds ]]" % (timeFinish - timeStart)
+   print ("\n[[ Total files scanned: %i ]]" % (fileCount))
+   print ("[[ Total files ignored: %i ]]" % (fileIgnoreCount))
+   print ("[[ Scan Time: %f seconds ]]" % (timeFinish - timeStart))
 
    # Print top rank lists
    rank_list = {}
@@ -496,9 +515,8 @@ if __name__ == "__main__":
 
    rank_sorted = sorted(rank_list.items(), key=lambda x: x[1])
 
-   print "\n[[ Top cumulative ranked files ]]"
+   print ("\n[[ Top cumulative ranked files ]]")
    count = 10
    if (count > len(rank_sorted)): count = len(rank_sorted)
    for x in range(count):
-       print ' {0:>7}        {1}'.format(rank_sorted[x][1], rank_sorted[x][0])
-   
+       print (' {0:>7}        {1}'.format(rank_sorted[x][1], rank_sorted[x][0]))
